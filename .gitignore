@@ -40,3 +40,19 @@ coverage.xml
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build output
+frontend/build/
+build/
+
+# Deployment artifacts
+deploy/
+
+# Modal logs
+.modal_logs/
