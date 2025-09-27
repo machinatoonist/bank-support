@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -132,8 +133,11 @@ export default function Home() {
 
   if (showNameInput) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <Card className="w-full max-w-2xl mx-auto">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Bot className="h-12 w-12 text-primary" />
@@ -153,7 +157,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
                 <Bot className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium">AI-Powered Analysis</span>
@@ -197,8 +201,11 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      <div className="max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col pt-12 sm:pt-4">
         <Card className="flex-1 flex flex-col">
           <CardHeader className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
             <div className="flex items-center justify-between">
@@ -223,12 +230,12 @@ export default function Home() {
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0">
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {message.type === 'user' && (
-                    <Card className="max-w-[80%] bg-primary text-primary-foreground">
-                      <CardContent className="p-4">
+                    <Card className="max-w-[85%] sm:max-w-[80%] bg-primary text-primary-foreground rounded-2xl">
+                      <CardContent className="p-6 text-base">
                         <div className="flex items-center gap-2 mb-2">
                           <User className="h-4 w-4" />
                           <span className="text-sm font-medium">{customerName}</span>
@@ -240,8 +247,8 @@ export default function Home() {
                   )}
 
                   {message.type === 'agent' && (
-                    <Card className="max-w-[80%]">
-                      <CardContent className="p-4">
+                    <Card className="max-w-[85%] sm:max-w-[80%] rounded-2xl">
+                      <CardContent className="p-6 text-base">
                         <div className="flex items-center gap-2 mb-2">
                           <Bot className="h-4 w-4 text-primary" />
                           <span className="text-sm font-medium">AI Agent</span>
@@ -251,7 +258,7 @@ export default function Home() {
 
                         {message.data && (
                           <div className="space-y-3 pt-3 border-t">
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-2 sm:gap-3">
                               <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium">Risk Level:</span>
                                 <Badge variant={getRiskBadgeVariant(message.data.risk)} className="flex items-center gap-1">
@@ -291,8 +298,8 @@ export default function Home() {
                   )}
 
                   {message.type === 'system' && (
-                    <Card className="max-w-[90%] bg-muted">
-                      <CardContent className="p-4 text-center">
+                    <Card className="max-w-[95%] sm:max-w-[90%] bg-muted rounded-2xl">
+                      <CardContent className="p-6 text-center text-base">
                         <p className="text-sm">{message.content}</p>
                       </CardContent>
                     </Card>
@@ -302,8 +309,8 @@ export default function Home() {
 
               {isLoading && (
                 <div className="flex justify-start">
-                  <Card className="max-w-[80%]">
-                    <CardContent className="p-4">
+                  <Card className="max-w-[85%] sm:max-w-[80%] rounded-2xl">
+                    <CardContent className="p-6 text-base">
                       <div className="flex items-center gap-2 mb-2">
                         <Bot className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">AI Agent</span>
@@ -320,20 +327,22 @@ export default function Home() {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="border-t p-4">
-              <form onSubmit={handleSendMessage} className="flex gap-2">
-                <Input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Type your message..."
-                  disabled={isLoading}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isLoading || !inputValue.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
+            <div className="border-t p-6 sm:p-8">
+              <div className="max-w-4xl mx-auto">
+                <form onSubmit={handleSendMessage} className="flex gap-3 max-w-[70%] mx-auto">
+                  <Input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Type your message..."
+                    disabled={isLoading}
+                    className="flex-1 border-2"
+                  />
+                  <Button type="submit" disabled={isLoading || !inputValue.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
             </div>
           </CardContent>
         </Card>
