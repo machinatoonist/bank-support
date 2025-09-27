@@ -1,0 +1,343 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lucide-react'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+interface Message {
+  type: 'user' | 'agent' | 'system'
+  content: string
+  data?: {
+    support_advice: string
+    block_card: boolean
+    risk: number
+    risk_explanation: string
+    risk_category: string
+    risk_signals: string[]
+  }
+  timestamp: string
+}
+
+export default function Home() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [customerName, setCustomerName] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [showNameInput, setShowNameInput] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const getRiskBadgeVariant = (risk: number) => {
+    if (risk <= 2) return 'success'
+    if (risk <= 5) return 'warning'
+    if (risk <= 8) return 'destructive'
+    return 'destructive'
+  }
+
+  const getRiskIcon = (category: string) => {
+    switch (category) {
+      case 'routine': return <Info className="w-4 h-4" />
+      case 'concerning': return <Clock className="w-4 h-4" />
+      case 'urgent': return <AlertTriangle className="w-4 h-4" />
+      case 'critical': return <Shield className="w-4 h-4" />
+      default: return <Info className="w-4 h-4" />
+    }
+  }
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (customerName.trim()) {
+      setShowNameInput(false)
+      setMessages([{
+        type: 'system',
+        content: `Welcome ${customerName}! I'm your AI banking assistant powered by Pydantic AI and Logfire. I can help you with account inquiries, security concerns, and other banking needs. How can I assist you today?`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }])
+    }
+  }
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inputValue.trim() || isLoading) return
+
+    const userMessage: Message = {
+      type: 'user',
+      content: inputValue,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setInputValue('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/support`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: inputValue,
+          customer_name: customerName,
+          customer_id: 123,
+          include_pending: true
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      const agentMessage: Message = {
+        type: 'agent',
+        content: data.support_advice,
+        data,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+
+      setMessages(prev => [...prev, agentMessage])
+    } catch (error) {
+      console.error('Error sending message:', error)
+      const errorMessage: Message = {
+        type: 'system',
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const resetChat = () => {
+    setMessages([])
+    setCustomerName('')
+    setShowNameInput(true)
+    setInputValue('')
+  }
+
+  if (showNameInput) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Bot className="h-12 w-12 text-primary" />
+            </div>
+            <CardTitle className="text-3xl">Bank Support AI Agent</CardTitle>
+            <CardDescription className="text-lg">
+              Powered by <strong>Pydantic AI</strong> and <strong>Logfire</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold mb-3">AI-Powered Risk Assessment</h2>
+              <p className="text-muted-foreground mb-6">
+                This demonstration showcases an intelligent banking support system that uses
+                advanced AI to assess customer inquiries, evaluate risk levels, and make
+                automated decisions about account security measures.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                <Bot className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">AI-Powered Analysis</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                <Shield className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">Risk Assessment</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">Automated Decisions</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                <Info className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium">Real-time Monitoring</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleNameSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="customerName" className="block text-sm font-medium mb-2">
+                  Enter your name to begin:
+                </label>
+                <Input
+                  id="customerName"
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Your name"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Start Chat
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
+        <Card className="flex-1 flex flex-col">
+          <CardHeader className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bot className="h-8 w-8" />
+                <div>
+                  <CardTitle className="text-xl">Bank Support AI Agent</CardTitle>
+                  <CardDescription className="text-primary-foreground/80">
+                    Customer: {customerName}
+                  </CardDescription>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetChat}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                New Session
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="flex-1 flex flex-col p-0">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {messages.map((message, index) => (
+                <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {message.type === 'user' && (
+                    <Card className="max-w-[80%] bg-primary text-primary-foreground">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="h-4 w-4" />
+                          <span className="text-sm font-medium">{customerName}</span>
+                          <span className="text-xs opacity-70 ml-auto">{message.timestamp}</span>
+                        </div>
+                        <p>{message.content}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {message.type === 'agent' && (
+                    <Card className="max-w-[80%]">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Bot className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">AI Agent</span>
+                          <span className="text-xs text-muted-foreground ml-auto">{message.timestamp}</span>
+                        </div>
+                        <p className="mb-4">{message.content}</p>
+
+                        {message.data && (
+                          <div className="space-y-3 pt-3 border-t">
+                            <div className="flex flex-wrap gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">Risk Level:</span>
+                                <Badge variant={getRiskBadgeVariant(message.data.risk)} className="flex items-center gap-1">
+                                  {getRiskIcon(message.data.risk_category)}
+                                  {message.data.risk}/10 ({message.data.risk_category})
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">Card Status:</span>
+                                <Badge variant={message.data.block_card ? 'destructive' : 'success'}>
+                                  {message.data.block_card ? 'BLOCKED' : 'ACTIVE'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium">Risk Analysis:</span>
+                              <p className="text-sm text-muted-foreground mt-1">{message.data.risk_explanation}</p>
+                            </div>
+
+                            {message.data.risk_signals && message.data.risk_signals.length > 0 && (
+                              <div>
+                                <span className="text-sm font-medium">Risk Signals:</span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {message.data.risk_signals.map((signal, i) => (
+                                    <Badge key={i} variant="secondary" className="text-xs">
+                                      {signal}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {message.type === 'system' && (
+                    <Card className="max-w-[90%] bg-muted">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-sm">{message.content}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex justify-start">
+                  <Card className="max-w-[80%]">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Bot className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">AI Agent</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">Analyzing your request...</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="border-t p-4">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Type your message..."
+                  disabled={isLoading}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={isLoading || !inputValue.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
