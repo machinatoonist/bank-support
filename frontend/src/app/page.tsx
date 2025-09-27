@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
+import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -26,11 +27,12 @@ interface Message {
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState('')
   const [customerName, setCustomerName] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
   const [showNameInput, setShowNameInput] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatInputRef = useRef<ChatInputHandle>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -39,6 +41,38 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Focus after initial mount to chat
+  useEffect(() => {
+    if (!showNameInput) {
+      chatInputRef.current?.focus()
+    }
+  }, [showNameInput])
+
+  // Focus as soon as streaming ends (assistant finished)
+  useEffect(() => {
+    if (!isStreaming && !showNameInput) {
+      chatInputRef.current?.focus()
+    }
+  }, [isStreaming, showNameInput])
+
+  // Also focus after new assistant message appended (belt & braces)
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    if (last?.type === 'agent' && !showNameInput) {
+      chatInputRef.current?.focus()
+    }
+  }, [messages, showNameInput])
+
+
+  useEffect(() => {
+    // Focus the name input when app first loads
+    if (nameInputRef.current) {
+      setTimeout(() => {
+        nameInputRef.current?.focus()
+      }, 100)
+    }
+  }, [])
 
   const getRiskBadgeVariant = (risk: number) => {
     if (risk <= 2) return 'success'
@@ -69,19 +103,19 @@ export default function Home() {
     }
   }
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inputValue.trim() || isLoading) return
+  const sendMessage = async (userText: string) => {
+    if (!userText.trim() || isStreaming) return
 
+    // 1) Push user message
     const userMessage: Message = {
       type: 'user',
-      content: inputValue,
+      content: userText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
-
     setMessages(prev => [...prev, userMessage])
-    setInputValue('')
-    setIsLoading(true)
+
+    // 2) Start streaming
+    setIsStreaming(true)
 
     try {
       const response = await fetch(`${API_BASE_URL}/support`, {
@@ -90,7 +124,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          question: inputValue,
+          question: userText,
           customer_name: customerName,
           customer_id: 123,
           include_pending: true
@@ -103,14 +137,15 @@ export default function Home() {
 
       const data = await response.json()
 
+      // 3) Push assistant message
       const agentMessage: Message = {
         type: 'agent',
         content: data.support_advice,
         data,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
-
       setMessages(prev => [...prev, agentMessage])
+
     } catch (error) {
       console.error('Error sending message:', error)
       const errorMessage: Message = {
@@ -120,7 +155,8 @@ export default function Home() {
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
-      setIsLoading(false)
+      // 4) Mark streaming done (triggers focus)
+      setIsStreaming(false)
     }
   }
 
@@ -128,13 +164,12 @@ export default function Home() {
     setMessages([])
     setCustomerName('')
     setShowNameInput(true)
-    setInputValue('')
   }
 
   if (showNameInput) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
           <ThemeToggle />
         </div>
         <Card className="w-full max-w-2xl mx-auto">
@@ -182,6 +217,7 @@ export default function Home() {
                   Enter your name to begin:
                 </label>
                 <Input
+                  ref={nameInputRef}
                   id="customerName"
                   type="text"
                   value={customerName}
@@ -202,7 +238,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
         <ThemeToggle />
       </div>
       <div className="max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col pt-12 sm:pt-4">
@@ -307,7 +343,7 @@ export default function Home() {
                 </div>
               ))}
 
-              {isLoading && (
+              {isStreaming && (
                 <div className="flex justify-start">
                   <Card className="max-w-[85%] sm:max-w-[80%] rounded-2xl">
                     <CardContent className="p-6 text-base">
@@ -328,21 +364,12 @@ export default function Home() {
             </div>
 
             <div className="border-t p-6 sm:p-8">
-              <div className="max-w-4xl mx-auto">
-                <form onSubmit={handleSendMessage} className="flex gap-3 max-w-[70%] mx-auto">
-                  <Input
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Type your message..."
-                    disabled={isLoading}
-                    className="flex-1 border-2"
-                  />
-                  <Button type="submit" disabled={isLoading || !inputValue.trim()}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
-              </div>
+              <ChatInput
+                ref={chatInputRef}
+                onSubmit={sendMessage}
+                disabled={isStreaming}
+                placeholder="Type your message..."
+              />
             </div>
           </CardContent>
         </Card>
