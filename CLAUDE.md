@@ -10,7 +10,8 @@ This is a bank customer support application built with FastAPI and Pydantic AI. 
 
 ### Core Components
 
-- **FastAPI Application** (`app/main.py`): Main web service with REST endpoints
+- **FastAPI Application** (`app/main.py`): Main web service with REST endpoints and CORS middleware
+- **Next.js Frontend** (`frontend/`): Modern React-based UI with TypeScript and Tailwind CSS
 - **Pydantic AI Agent**: OpenAI GPT-4o powered support agent with structured output
 - **Database Layer**: Mock database implementation (`DatabaseConn`) for customer data
 - **Observability**: Logfire integration for tracing FastAPI, Pydantic AI, and OpenAI calls
@@ -58,16 +59,47 @@ set -a && source .env && set +a
 
 ### Running the Application
 
-```bash
-# Start FastAPI server (main app)
-uv run uvicorn app.main:app --reload
+#### Full Development Stack (Recommended)
 
-# Start bank support example API
+```bash
+# Use the local development script to start all services
+./start_local.sh
+```
+
+This starts:
+- Backend API on `http://localhost:8000`
+- Frontend UI on `http://localhost:3000`
+- Example API on `http://localhost:8001`
+
+#### Manual Service Management
+
+```bash
+# Start Backend API (required for frontend)
+uv run uvicorn app.main:app --reload --port 8000
+
+# Start Frontend UI (in another terminal)
+cd frontend && npm run dev
+
+# Start Example API (optional)
 uv run uvicorn bank_support_example:app --reload --port 8001
 
 # Run basic script
 uv run python main.py
 ```
+
+#### Service URLs
+
+- **Frontend UI**: http://localhost:3000 (Bank Support AI Agent interface)
+- **Backend API**: http://localhost:8000 (FastAPI with OpenAPI docs at /docs)
+- **Example API**: http://localhost:8001 (Alternative FastAPI implementation)
+
+#### Quick Development Workflow
+
+1. Start all services: `./start_local.sh`
+2. Open browser to http://localhost:3000
+3. Enter your name and test the AI agent
+4. View real-time telemetry at https://logfire-us.pydantic.dev/mattrosinski/bank-support
+5. Run tests: `./test_local.sh`
 
 ### Working with Pydantic AI Examples
 
@@ -79,7 +111,10 @@ set -a && source .env && set +a && uv run --with "pydantic-ai[examples]" -m pyda
 ### Testing
 
 ```bash
-# Run all tests
+# Run comprehensive test suite (starts services, runs tests, stops services)
+./test_local.sh
+
+# Manual testing (requires services running)
 uv run pytest
 
 # Run tests with verbose output
@@ -94,6 +129,9 @@ uv run pytest test_logfire.py -v
 # Run smoke tests (alternative testing approach)
 uv run python smoke_test.py
 ./smoke_test.sh
+
+# Frontend tests
+cd frontend && npm run lint
 ```
 
 ### Jupyter Development
