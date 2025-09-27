@@ -4,6 +4,7 @@ from typing import Optional
 
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, conint
 from pydantic_ai import Agent, RunContext
 from dotenv import load_dotenv
@@ -100,6 +101,15 @@ async def customer_balance(
 
 # ---------- 6) FastAPI app and endpoint ----------
 app = FastAPI(title="bank-support")
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Instrument FastAPI after app creation
 logfire.instrument_fastapi(app)
