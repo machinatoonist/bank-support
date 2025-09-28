@@ -267,31 +267,31 @@ export default function Home() {
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0">
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {message.type === 'user' && (
-                    <div className="max-w-[85%] sm:max-w-[80%] bg-slate-100 dark:bg-slate-800 rounded-2xl border-0 shadow-sm">
-                      <div className="p-6 text-base">
-                        <div className="flex items-center gap-2 mb-2">
-                          <User className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{customerName}</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-500 ml-auto">{message.timestamp}</span>
+                    <div className="max-w-[85%] sm:max-w-[80%] bg-slate-200 dark:bg-slate-700 rounded-2xl border-0 shadow-md">
+                      <div className="p-5 text-lg">
+                        <div className="flex items-center gap-3 mb-3">
+                          <User className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{customerName}</span>
+                          <span className="text-xs text-slate-600 dark:text-slate-400 ml-auto">{message.timestamp}</span>
                         </div>
-                        <p className="text-slate-800 dark:text-slate-200">{message.content}</p>
+                        <p className="text-slate-900 dark:text-slate-100 leading-relaxed">{message.content}</p>
                       </div>
                     </div>
                   )}
 
                   {message.type === 'agent' && (
-                    <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-900 rounded-2xl border-0 shadow-sm">
-                      <div className="p-6 text-base">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Bot className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium">AI Agent</span>
+                    <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-800 rounded-2xl border-0 shadow-md">
+                      <div className="p-5 text-lg">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Bot className="h-5 w-5 text-primary" />
+                          <span className="text-sm font-semibold">AI Agent</span>
                           <span className="text-xs text-muted-foreground ml-auto">{message.timestamp}</span>
                         </div>
-                        <p className="mb-4">{message.content}</p>
+                        <p className="mb-4 leading-relaxed">{message.content}</p>
 
                         {message.data && (
                           <div className="space-y-3 pt-3 border-t">
@@ -335,9 +335,9 @@ export default function Home() {
                   )}
 
                   {message.type === 'system' && (
-                    <div className="max-w-[95%] sm:max-w-[90%] bg-blue-50 dark:bg-blue-950 rounded-2xl border-0 shadow-sm">
-                      <div className="p-6 text-center text-base">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">{message.content}</p>
+                    <div className="max-w-[95%] sm:max-w-[90%] bg-blue-100 dark:bg-blue-900 rounded-2xl border-0 shadow-md">
+                      <div className="p-5 text-center">
+                        <p className="text-base text-blue-900 dark:text-blue-100 font-medium leading-relaxed">{message.content}</p>
                       </div>
                     </div>
                   )}
@@ -346,15 +346,15 @@ export default function Home() {
 
               {isStreaming && (
                 <div className="flex justify-start">
-                  <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-900 rounded-2xl border-0 shadow-sm">
-                    <div className="p-6 text-base">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Bot className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">AI Agent</span>
+                  <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-800 rounded-2xl border-0 shadow-md">
+                    <div className="p-5 text-lg">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Bot className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-semibold">AI Agent</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm text-muted-foreground">Analyzing your request...</span>
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="text-base text-muted-foreground">Analyzing your request...</span>
                       </div>
                     </div>
                   </div>
