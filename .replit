@@ -58,5 +58,5 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-build = ["bash", "-c", "pkill -f uv || true && sleep 2 && cd frontend && rm -rf node_modules/.cache && npm install --no-package-lock --prefer-offline && npm run build"]
+run = ["uvicorn", "app.main:app", "--host", "0.0.0.0"]
+build = ["bash", "-c", "cd frontend && npm clean-install && npm run build"]
