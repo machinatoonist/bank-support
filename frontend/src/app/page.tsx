@@ -9,10 +9,10 @@ import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lu
 import { ThemeToggle } from '@/components/theme-toggle'
 import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 
-// Configure API base URL - use current domain with port 8000 for production, or localhost for dev
+// Configure API base URL - use same domain for production, localhost for dev
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-    ? `${window.location.protocol}//${window.location.hostname}:8000`
+    ? '/api'  // Use relative path for production - will be proxied
     : 'http://localhost:8000')
 
 interface Message {
