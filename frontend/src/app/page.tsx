@@ -9,22 +9,8 @@ import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lu
 import { ThemeToggle } from '@/components/theme-toggle'
 import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 
-// Configure API base URL - use the Replit domain or localhost for development
-const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    // Client side - construct from current domain
-    const currentDomain = window.location.host
-    if (currentDomain.includes('replit.dev')) {
-      // Replace port 5000 (frontend) with 8000 (backend) for API calls
-      const backendDomain = currentDomain.replace(':5000', ':8000')
-      return `https://${backendDomain}`
-    }
-  }
-  // Fallback to environment variable or localhost
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
-
-const API_BASE_URL = getApiBaseUrl()
+// Configure API base URL - use environment variable or default to localhost for backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 interface Message {
   type: 'user' | 'agent' | 'system'
