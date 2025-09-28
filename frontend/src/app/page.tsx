@@ -9,10 +9,10 @@ import { Bot, User, Send, Shield, AlertTriangle, Info, Clock, Loader2 } from 'lu
 import { ThemeToggle } from '@/components/theme-toggle'
 import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 
-// Configure API base URL - use same domain for production, localhost for dev
+// Configure API base URL - use same domain for production, localhost for dev  
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-    ? ''  // Use same domain for production (served by FastAPI)
+    ? `${window.location.protocol}//${window.location.host}`  // Use same domain for production (served by FastAPI)
     : 'http://localhost:5000')
 
 interface Message {
@@ -163,9 +163,23 @@ export default function Home() {
 
     } catch (error) {
       console.error('Error sending message:', error)
+      
+      // Provide specific error messages based on error type
+      let errorContent = 'Sorry, I encountered an error processing your request. Please try again.'
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorContent = 'Unable to connect to the AI service. Please check your connection and try again.'
+      } else if (error instanceof Error && error.message.includes('HTTP error!')) {
+        const statusMatch = error.message.match(/status: (\d+)/)
+        const status = statusMatch ? statusMatch[1] : 'unknown'
+        errorContent = `Server error (${status}). The AI service is temporarily unavailable. Please try again in a moment.`
+      } else if (error instanceof Error) {
+        errorContent = `AI service error: ${error.message}. Please try again.`
+      }
+      
       const errorMessage: Message = {
         type: 'system',
-        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        content: errorContent,
         timestamp: getTimestamp()
       }
       setMessages(prev => [...prev, errorMessage])
