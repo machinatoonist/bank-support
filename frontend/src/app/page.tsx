@@ -271,21 +271,21 @@ export default function Home() {
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {message.type === 'user' && (
-                    <Card className="max-w-[85%] sm:max-w-[80%] bg-primary text-primary-foreground rounded-2xl">
-                      <CardContent className="p-6 text-base">
+                    <div className="max-w-[85%] sm:max-w-[80%] bg-slate-100 dark:bg-slate-800 rounded-2xl border-0 shadow-sm">
+                      <div className="p-6 text-base">
                         <div className="flex items-center gap-2 mb-2">
-                          <User className="h-4 w-4" />
-                          <span className="text-sm font-medium">{customerName}</span>
-                          <span className="text-xs opacity-70 ml-auto">{message.timestamp}</span>
+                          <User className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{customerName}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-500 ml-auto">{message.timestamp}</span>
                         </div>
-                        <p>{message.content}</p>
-                      </CardContent>
-                    </Card>
+                        <p className="text-slate-800 dark:text-slate-200">{message.content}</p>
+                      </div>
+                    </div>
                   )}
 
                   {message.type === 'agent' && (
-                    <Card className="max-w-[85%] sm:max-w-[80%] rounded-2xl">
-                      <CardContent className="p-6 text-base">
+                    <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-900 rounded-2xl border-0 shadow-sm">
+                      <div className="p-6 text-base">
                         <div className="flex items-center gap-2 mb-2">
                           <Bot className="h-4 w-4 text-primary" />
                           <span className="text-sm font-medium">AI Agent</span>
@@ -330,24 +330,24 @@ export default function Home() {
                             )}
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   )}
 
                   {message.type === 'system' && (
-                    <Card className="max-w-[95%] sm:max-w-[90%] bg-muted rounded-2xl">
-                      <CardContent className="p-6 text-center text-base">
-                        <p className="text-sm">{message.content}</p>
-                      </CardContent>
-                    </Card>
+                    <div className="max-w-[95%] sm:max-w-[90%] bg-blue-50 dark:bg-blue-950 rounded-2xl border-0 shadow-sm">
+                      <div className="p-6 text-center text-base">
+                        <p className="text-sm text-blue-800 dark:text-blue-200">{message.content}</p>
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}
 
               {isStreaming && (
                 <div className="flex justify-start">
-                  <Card className="max-w-[85%] sm:max-w-[80%] rounded-2xl">
-                    <CardContent className="p-6 text-base">
+                  <div className="max-w-[85%] sm:max-w-[80%] bg-white dark:bg-slate-900 rounded-2xl border-0 shadow-sm">
+                    <div className="p-6 text-base">
                       <div className="flex items-center gap-2 mb-2">
                         <Bot className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium">AI Agent</span>
@@ -356,8 +356,8 @@ export default function Home() {
                         <Loader2 className="h-4 w-4 animate-spin" />
                         <span className="text-sm text-muted-foreground">Analyzing your request...</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </div>
               )}
 
