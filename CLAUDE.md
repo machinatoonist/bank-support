@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Development Workflow
+
+**IMPORTANT**: When developing new features, follow the structured workflow defined in `master-prompt.md`. This ensures consistent, methodical development with proper task breakdown, step-by-step execution, and quality assurance.
+
 ## Project Overview
 
 This is a bank customer support application built with FastAPI and Pydantic AI. The application provides an AI-powered support agent that can assist customers with banking inquiries, assess risk levels, and make decisions about card blocking based on customer interactions.
@@ -134,6 +138,67 @@ uv run python smoke_test.py
 cd frontend && npm run lint
 ```
 
+### AI Agent Evaluation & Testing
+
+The project includes comprehensive evaluation tools using Pydantic AI Evals to test and validate the bank support agent's responses:
+
+#### Quick Testing Tools
+
+```bash
+# Quick demo with predefined scenarios
+uv run python demo_evals.py
+
+# Interactive testing of Modal deployment
+uv run python test_modal_chat.py
+
+# Test API health only
+uv run python test_modal_chat.py --test-health
+
+# Test specific scenarios non-interactively
+uv run python test_modal_chat.py --run-tests
+```
+
+#### Comprehensive Evaluation Framework
+
+```bash
+# Full evaluation with Pydantic AI Evals (Modal deployment)
+uv run python bank_support_evals.py --modal
+
+# Full evaluation with local agent
+uv run python bank_support_evals.py --local
+
+# Interactive testing mode
+uv run python bank_support_evals.py --interactive
+
+# Comprehensive report
+uv run python bank_support_evals.py --full-report
+```
+
+#### Evaluation Features
+
+- **Automated Testing**: 9 predefined test scenarios covering critical, urgent, concerning, and routine banking situations
+- **Risk Assessment Validation**: Validates risk scores (0-10), categories, and card blocking decisions
+- **LLM Judges**: Uses GPT-4o to evaluate response quality, appropriateness, and accuracy
+- **Response Analysis**: Checks for proper risk signal detection and professional tone
+- **Multi-Environment**: Tests both local development and Modal production deployments
+- **Logfire Integration**: All evaluations are traced and visible in Logfire dashboard
+
+#### Test Scenarios Include
+
+- **Critical (8-10 risk)**: Lost cards, stolen cards, fraud reports
+- **Urgent (6-8 risk)**: Unauthorized transactions, suspicious activity
+- **Concerning (3-5 risk)**: Uncertain about transactions, unusual patterns
+- **Routine (0-2 risk)**: Balance inquiries, account information, general questions
+
+#### Interactive Testing
+
+The interactive tools allow you to:
+- Test custom questions in real-time
+- Compare responses across different deployments
+- View detailed risk assessments and explanations
+- Validate card blocking decisions
+- Monitor API health and performance
+
 ### Jupyter Development
 
 ```bash
@@ -259,3 +324,4 @@ To install the missing packages, copy the command provided by the inspect comman
 Each instrumentation package has its own way to be configured. Check our Integrations page to learn how to configure them.
 - uv run logfire projects use bank-support
 Project configured successfully. You will be able to view it at: https://logfire-us.pydantic.dev/mattrosinski/bank-support
+- uv run python test_modal_chat.py
