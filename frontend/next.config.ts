@@ -16,6 +16,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Proxy API requests to backend in production
+  async rewrites() {
+    if (process.env.NODE_ENV === 'production') {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:8000/:path*',
+        },
+      ];
+    }
+    return [];
+  },
 };
 
 export default nextConfig;
