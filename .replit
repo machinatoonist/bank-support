@@ -17,35 +17,18 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Backend"
-
-[[workflows.workflow]]
-name = "Frontend"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend && npm run dev"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[workflows.workflow]]
 name = "Backend"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "uvicorn app.main:app --host localhost --port 8000 --reload"
-waitForPort = 8000
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "uvicorn app.main:app --host 0.0.0.0 --port 5000 --reload"
 
 [[ports]]
 localPort = 5000
@@ -58,5 +41,5 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+run = ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
 build = ["bash", "-c", "pip install -r requirements.txt && cd frontend && npm clean-install && npm run build"]
