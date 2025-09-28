@@ -103,9 +103,22 @@ async def customer_balance(
 app = FastAPI(title="bank-support")
 
 # Add CORS middleware to allow frontend requests
+# Get the Replit domain for CORS
+replit_domain = os.getenv("REPLIT_DEV_DOMAIN")
+allowed_origins = [
+    "http://localhost:3000",  # Local development
+    "http://localhost:5000",  # Local frontend on port 5000
+]
+
+if replit_domain:
+    allowed_origins.extend([
+        f"https://{replit_domain}",
+        f"http://{replit_domain}",
+    ])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
