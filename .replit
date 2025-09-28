@@ -59,4 +59,4 @@ exposeLocalhost = true
 [deployment]
 deploymentTarget = "autoscale"
 run = ["uvicorn", "app.main:app", "--host", "0.0.0.0"]
-build = ["bash", "-c", "cd frontend && npm clean-install && npm run build"]
+build = ["bash", "-c", "pip install -r requirements.txt && cd frontend && npm clean-install && npm run build"]
