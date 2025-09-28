@@ -12,7 +12,7 @@ import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 // Configure API base URL - use same domain for production, localhost for dev
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-    ? '/api'  // Use relative path for production - will be proxied
+    ? ''  // Use same domain for production (served by FastAPI)
     : 'http://localhost:8000')
 
 interface Message {
