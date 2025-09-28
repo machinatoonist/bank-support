@@ -209,8 +209,37 @@ def bank_support_api():
         allow_headers=["*"],
     )
 
-    # Instrument FastAPI after app creation
-    logfire.instrument_fastapi(fastapi_app)
+    # Custom request attributes for enhanced observability
+    def request_attributes_mapper(request, attributes):
+        """Add custom attributes for better tracing"""
+        custom_attrs = {}
+
+        # Add request-specific attributes
+        if hasattr(request, 'url'):
+            custom_attrs['request.path'] = str(request.url.path)
+
+        # Include validation errors for debugging
+        if attributes.get("errors"):
+            custom_attrs['validation.errors'] = attributes["errors"]
+
+        # Add parsed arguments for support queries
+        if attributes.get("values") and request.url.path == "/support":
+            values = attributes["values"]
+            if "customer_name" in values:
+                custom_attrs['support.customer_name'] = values["customer_name"]
+            if "question" in values:
+                # Truncate question for logging (avoid PII concerns)
+                question = values["question"][:100] + "..." if len(values["question"]) > 100 else values["question"]
+                custom_attrs['support.question_preview'] = question
+
+        return custom_attrs
+
+    # Instrument FastAPI with enhanced observability
+    logfire.instrument_fastapi(
+        fastapi_app,
+        request_attributes_mapper=request_attributes_mapper,
+        extra_spans=True  # Enable extra spans for detailed tracing
+    )
 
     class Query(BaseModel):
         question: str
