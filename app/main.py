@@ -208,7 +208,7 @@ async def support(q: Query) -> SupportOutput:
         deps = SupportDependencies(customer_id=q.customer_id, customer_name=q.customer_name, db=DatabaseConn())
         # The agent can decide to call the tool (customer_balance) if needed
         result = await support_agent.run(q.question, deps=deps)
-        return result.data
+        return result.output
 
 @app.get("/health")
 def health():

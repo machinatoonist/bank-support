@@ -9,7 +9,7 @@ These tests validate the API endpoints and expected behavior:
 
 import pytest
 from fastapi.testclient import TestClient
-from bank_support_example import app
+from app.main import app
 
 
 class TestBankSupportAPI:
