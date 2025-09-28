@@ -4,6 +4,9 @@ from typing import Optional
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from pydantic import BaseModel, Field, conint
 from pydantic_ai import Agent, RunContext
 from dotenv import load_dotenv
@@ -224,10 +227,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Instrument FastAPI after app creation only if Logfire is enabled
-if logfire_enabled:
-    logfire.instrument_fastapi(app)
-
+# Define API endpoints first (higher priority)
 class Query(BaseModel):
     question: str
     customer_name: str
@@ -289,3 +289,34 @@ def health():
         "fallback_llm": "Anthropic Claude Sonnet 4" if fallback_agent else None,
         "logfire_enabled": logfire_enabled
     }
+
+# Serve static frontend files in production
+frontend_build_path = "frontend/out"
+if os.path.exists(frontend_build_path):
+    # Mount static files
+    app.mount("/_next", StaticFiles(directory=f"{frontend_build_path}/_next"), name="next")
+    
+    # Catch-all route for SPA (must be last)
+    @app.get("/{path:path}")
+    async def serve_frontend(path: str):
+        # For root path, serve index.html
+        if path == "" or path == "/":
+            index_file = os.path.join(frontend_build_path, "index.html")
+            if os.path.exists(index_file):
+                return FileResponse(index_file)
+        
+        # For other paths, try to serve the file first
+        file_path = os.path.join(frontend_build_path, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        # Fall back to index.html for SPA routing
+        index_file = os.path.join(frontend_build_path, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        
+        return {"error": "Frontend not built"}
+
+# Instrument FastAPI after app creation only if Logfire is enabled
+if logfire_enabled:
+    logfire.instrument_fastapi(app)

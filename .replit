@@ -58,5 +58,5 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000 & cd frontend && npm run start -- --port 80 --hostname 0.0.0.0 & wait"]
+run = ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 build = ["bash", "-c", "cd frontend && npm ci && npm run build"]
