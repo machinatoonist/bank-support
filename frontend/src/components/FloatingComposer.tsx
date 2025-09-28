@@ -72,7 +72,7 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
         scrollContainer.appendChild(spacer)
       }
 
-      spacer.style.height = `${height + 24}px` // Add some extra padding
+      spacer.style.height = `${height + 80}px` // Add generous padding for safe area + spacing
     }
 
     // Handle textarea input
@@ -116,6 +116,10 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
 
       resizeObserverRef.current.observe(composerRef.current)
 
+      // Set initial spacer with default height
+      const initialHeight = composerRef.current.offsetHeight
+      updateBottomSpacer(initialHeight || 60) // Default fallback
+
       return () => {
         if (resizeObserverRef.current) {
           resizeObserverRef.current.disconnect()
@@ -152,7 +156,7 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
         }}
       >
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="relative bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-lg dark:bg-gray-900/80 dark:border-gray-700">
+          <div className="relative bg-white border border-gray-200 rounded-2xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
             <textarea
               ref={textareaRef}
               value={text}
@@ -161,7 +165,7 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
               placeholder={placeholder}
               disabled={disabled}
               rows={1}
-              className="w-full px-4 py-3 pr-12 bg-transparent border-none outline-none resize-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400"
+              className="w-full px-4 py-3 pr-12 bg-white dark:bg-gray-900 border-none outline-none resize-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400"
               style={{
                 minHeight: '24px',
                 lineHeight: '24px'

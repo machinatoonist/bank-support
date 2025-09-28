@@ -14,6 +14,24 @@ export default function ChatPage() {
   ])
   const [isStreaming, setIsStreaming] = useState(false)
   const composerRef = useRef<FloatingComposerRef>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, isStreaming])
+
+  // Prevent body scroll on this page
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
 
   // Focus composer on mount and when streaming ends
   useEffect(() => {
@@ -60,7 +78,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Header */}
       <div className="flex-none border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -74,7 +92,7 @@ export default function ChatPage() {
       {/* Messages Container */}
       <div
         id="chat-scroll"
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-4"
+        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-hide"
       >
         {messages.map((message, index) => (
           <div
@@ -123,6 +141,9 @@ export default function ChatPage() {
             </div>
           </div>
         )}
+
+        {/* Scroll target for auto-scroll */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Floating Composer */}
