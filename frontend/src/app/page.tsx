@@ -13,7 +13,7 @@ import ChatInput, { ChatInputHandle } from '@/components/chat-input'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
     ? ''  // Use same domain for production (served by FastAPI)
-    : 'http://localhost:8000')
+    : 'http://localhost:5000')
 
 interface Message {
   type: 'user' | 'agent' | 'system'
