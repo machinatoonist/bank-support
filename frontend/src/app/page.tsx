@@ -31,6 +31,17 @@ export default function Home() {
   const [customerName, setCustomerName] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [showNameInput, setShowNameInput] = useState(true)
+  const [isClient, setIsClient] = useState(false)
+
+  // Fix hydration mismatch by only rendering timestamps on client
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const getTimestamp = () => {
+    if (!isClient) return ''
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatInputRef = useRef<ChatInputHandle>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
@@ -99,7 +110,7 @@ export default function Home() {
       setMessages([{
         type: 'system',
         content: `Welcome ${customerName}! I'm your AI banking assistant powered by Pydantic AI and Logfire. I can help you with account inquiries, security concerns, and other banking needs. How can I assist you today?`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: getTimestamp()
       }])
     }
   }
@@ -111,7 +122,7 @@ export default function Home() {
     const userMessage: Message = {
       type: 'user',
       content: userText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: getTimestamp()
     }
     setMessages(prev => [...prev, userMessage])
 
@@ -143,7 +154,7 @@ export default function Home() {
         type: 'agent',
         content: data.support_advice,
         data,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: getTimestamp()
       }
       setMessages(prev => [...prev, agentMessage])
 
@@ -152,7 +163,7 @@ export default function Home() {
       const errorMessage: Message = {
         type: 'system',
         content: 'Sorry, I encountered an error processing your request. Please try again.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: getTimestamp()
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
@@ -271,14 +282,14 @@ export default function Home() {
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {message.type === 'user' && (
-                    <div className="max-w-[85%] sm:max-w-[80%] bg-slate-200 dark:bg-slate-700 rounded-2xl border-0 shadow-md">
+                    <div className="max-w-[85%] sm:max-w-[80%] bg-slate-300 dark:bg-slate-600 rounded-2xl border-0 shadow-lg">
                       <div className="p-5 text-lg">
                         <div className="flex items-center gap-3 mb-3">
-                          <User className="h-5 w-5 text-slate-700 dark:text-slate-300" />
-                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{customerName}</span>
-                          <span className="text-xs text-slate-600 dark:text-slate-400 ml-auto">{message.timestamp}</span>
+                          <User className="h-5 w-5 text-slate-800 dark:text-slate-200" />
+                          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{customerName}</span>
+                          <span className="text-xs text-slate-700 dark:text-slate-300 ml-auto">{message.timestamp}</span>
                         </div>
-                        <p className="text-slate-900 dark:text-slate-100 leading-relaxed">{message.content}</p>
+                        <p className="text-slate-900 dark:text-slate-50 leading-relaxed font-medium">{message.content}</p>
                       </div>
                     </div>
                   )}
