@@ -100,10 +100,10 @@ export default function ChatPage() {
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+              className={`max-w-xs lg:max-w-md ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
+                  ? 'bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 text-gray-900 dark:text-gray-100'
+                  : 'p-3 text-gray-900 dark:text-gray-100'
               }`}
             >
               <p className="text-sm">{message.content}</p>
@@ -114,7 +114,7 @@ export default function ChatPage() {
         {/* Streaming indicator */}
         {isStreaming && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-2xl">
+            <div className="p-3 text-gray-900 dark:text-gray-100">
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

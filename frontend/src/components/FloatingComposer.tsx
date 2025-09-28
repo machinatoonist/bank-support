@@ -69,10 +69,14 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
       if (!spacer) {
         spacer = document.createElement('div')
         spacer.id = 'chat-bottom-spacer'
+        spacer.style.flexShrink = '0' // Prevent spacer from shrinking
         scrollContainer.appendChild(spacer)
       }
 
-      spacer.style.height = `${height + 80}px` // Add generous padding for safe area + spacing
+      // Ensure minimum height and add padding for safe area + spacing
+      const minHeight = 100 // Minimum spacer height
+      const spacerHeight = Math.max(height + 80, minHeight)
+      spacer.style.height = `${spacerHeight}px`
     }
 
     // Handle textarea input
@@ -127,6 +131,22 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
       }
     }, [scrollContainerId])
 
+    // Handle window resize to recalculate spacer
+    useEffect(() => {
+      const handleResize = () => {
+        if (composerRef.current) {
+          // Small delay to ensure DOM updates are complete
+          setTimeout(() => {
+            const height = composerRef.current?.offsetHeight || 60
+            updateBottomSpacer(height)
+          }, 50)
+        }
+      }
+
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+    }, [scrollContainerId])
+
     // Auto-focus on mount
     useEffect(() => {
       if (textareaRef.current) {
@@ -149,14 +169,16 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
     const composer = (
       <div
         ref={composerRef}
-        className="fixed left-1/2 -translate-x-1/2 z-50 w-full max-w-[920px] px-4"
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[920px] px-4"
         style={{
           bottom: 'max(12px, calc(env(safe-area-inset-bottom) + 8px))',
-          width: 'min(920px, 92vw)'
+          width: 'min(920px, 92vw)',
+          zIndex: 9999, // Highest z-index to ensure it's always on top
+          pointerEvents: 'auto' // Ensure interaction works
         }}
       >
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="relative bg-white border border-gray-200 rounded-2xl shadow-lg dark:bg-gray-900 dark:border-gray-700">
+          <div className="relative bg-white rounded-2xl shadow-md p-3 dark:bg-gray-900">
             <textarea
               ref={textareaRef}
               value={text}
@@ -165,7 +187,7 @@ export const FloatingComposer = forwardRef<FloatingComposerRef, FloatingComposer
               placeholder={placeholder}
               disabled={disabled}
               rows={1}
-              className="w-full px-4 py-3 pr-12 bg-white dark:bg-gray-900 border-none outline-none resize-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400"
+              className="w-full pr-12 bg-transparent border-0 outline-none resize-none placeholder:text-gray-500 dark:text-white dark:placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 rounded-lg px-2 py-1"
               style={{
                 minHeight: '24px',
                 lineHeight: '24px'
